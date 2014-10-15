@@ -17,20 +17,22 @@ int main(void)
     cout << "I am a Reader!" <<endl;
 
     Shared<thread_data>sharedPoint("thing");
-    string oldMsg = " ";
-    string newMsg = " ";
-
+    thread_data temp;
     while (true){
-        thread_data *temp = sharedPoint.get();
-        newMsg = tostring(temp->thread_id)+"  "+tostring(temp->reportCounter)+"  "+tostring(temp->delayTime);
-        if(oldMsg!=newMsg){
-            cout<<newMsg<<endl;
-            oldMsg = newMsg;
+        //thread_data *temp = sharedPoint.get();
+       
+        if((temp.thread_id != sharedPoint->thread_id) ||(temp.reportCounter!=sharedPoint->reportCounter)||(temp.delayTime!=sharedPoint->delayTime)){
+            std::cout<<sharedPoint->thread_id<<"  "<<sharedPoint->reportCounter<<"  "<<sharedPoint->delayTime<<std::endl;
+            
+            temp.thread_id = sharedPoint->thread_id;
+            temp.reportCounter=sharedPoint->reportCounter;
+            temp.delayTime=sharedPoint->delayTime;
+
         }
         
         //std::cout<<temp->thread_id<<"  "<<temp->reportCounter<<"  "<<temp->delayTime<<std::endl;
     	//std::cout<<sharedPoint->thread_id<<"  "<<sharedPoint->reportCounter<<"  "<<sharedPoint->delayTime<<std::endl;
-    	usleep(500000);
+    	usleep(1000000);
     }
     return 0;
     
