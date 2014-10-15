@@ -1,4 +1,4 @@
-//#include "SharedObject.h"
+#include "SharedObject.h"
 //#include "Semaphore.h"
 #include <stdlib.h>
 #include <time.h>
@@ -11,21 +11,29 @@
 struct thread_data{
 	int thread_id;
 	int delayTime;
+    int reportCounter;
 };
 
 void *writingReport(void *threadarg){
 	struct thread_data *my_data;
     time_t curTime;
     time_t preTime;
+
+    Shared<thread_data>sharedPoint("thing");
+
 	my_data = (struct thread_data *) threadarg;
-    std::cout<<"Thread ID : " <<my_data->thread_id;
-    std::cout<<" Dealy Time : " <<my_data->delayTime<<std::endl;
+    sharedPoint->thread_id = my_data->thread_id;
+    sharedPoint->delayTime = my_data->delayTime;
+
+    //std::cout<<"Thread ID : " <<my_data->thread_id;
+    //std::cout<<" Dealy Time : " <<my_data->delayTime<<std::endl;
     
     time(&preTime);
     time(&curTime);
     for(int i = 0; i<10; i++){
         int dif = difftime(curTime, preTime);
-        std::cout<<"Thread ID: "<<my_data->thread_id<<" reports "<<i<< " Time Difference: "<<dif<<std::endl;
+        //std::cout<<"Thread ID: "<<my_data->thread_id<<" reports "<<i<< " Time Difference: "<<dif<<std::endl;
+        sharedPoint->reportCounter = i;
         preTime = curTime;
         sleep(my_data->delayTime);
         time(&curTime);
@@ -40,6 +48,7 @@ int main(void)
 	std::cout << "I am a writer!" << std::endl;
 	pthread_t threads[NUM_THREADS];
 	struct thread_data td[NUM_THREADS];
+    Shared<thread_data>sharedPoint("thing",true);
     int threadCounter = 0; // thread counter
     int err; //a variable that indicates a thread is created successfully or not
 
@@ -57,6 +66,7 @@ int main(void)
     	td[threadCounter].delayTime = delayTime;
 
     	err = pthread_create(&threads[threadCounter],NULL,writingReport, (void *)&td[threadCounter]);
+
     	if (err != 0) {
     		std::cout<<"can't create thread :" <<strerror(err);
     		exit(-1);
@@ -66,6 +76,7 @@ int main(void)
     	}
 
     	threadCounter++;
+        std::cout<<"Thread counter: "<<threadCounter<<std::endl;
     	std::cout <<"Would you like to create a writer thread?";
     	std::cin >> choice;
     }
